@@ -24,7 +24,7 @@ class Field:
             q = True
             for j in range(self.column):
                 if q:
-                    self.field[i].append(" ")
+                    self.field[i].append(' ')
                     '''q = False
                 else:
                     self.field[i].append("|")
@@ -34,26 +34,34 @@ class Field:
 
     def output(self):
         s = 0
-        tline = str
-        for i in range(1, self.line + 1):
-            tline.append(str(i))  # ????
-            tline.append('|')  # ????
-        print(' ' + tline)
-        for i in range(len(self.field)):
-            line = ''
-            liiine = ''
+        line = ""
+        liiine = '-'                        # строка из "-"
+        for i in range(1, self.line + 1):   # вывод номеров столбцов
+            line += '|'
+            line += str(i)
+        print(' ' + line)
+        for j in range(len(line)):          # разграничивающая линия
+            if s < (len(self.field) - 1):
+                liiine += '-'
+        print(liiine)
+
+        for i in range(len(self.field)):    # вывод самого поля
+            line = ''                       # строка массива
+            liiine = '-'                    # строка из "-"
+            line += str(i + 1)                # добавление номера строки
+            line += "|"                     # добавления разграничителя
             for j in range(len(self.field[i])):
                 if j < (len(self.field[i]) - 1):
                     line += str(self.field[i][j]) + '|'
                 else:
                     line += str(self.field[i][j])
-            line = str(i) + "|" + line
             print(line)
             for j in range(len(line)):
                 if s < (len(self.field) - 1):
                     liiine += '-'
             s += 1
-            print(liiine)
+            if s < (len(self.field)):
+                print(liiine)
 
 
 class Game:
@@ -105,8 +113,8 @@ class Game:
                             current_len = 0
                         if current_len == len_wc:
                             return True
-
-        for i in range(len(field)):
+        #--------------------------#
+        for i in range(len(field)):  # инвертор поля (так надо)
             field[i] = field[i][::-1]
         if len(field) >= len(field[0]):
             for i in range(len(field)):
@@ -141,28 +149,57 @@ class Game:
         plov2 = Player()
         curPlov = plov1
         change = 1
-        print("first player: enter your sign")
-        plov1.icon = input()
-        print("second player: enter your sign")
-        plov2.icon = input()
-        field.generateField()
-        print('line: ' + str(len(field.field)) + '; column: ' + str(len(field.field[0])))
-        # print(field.field)
-        # field.output()
+        print('choose you language:')
+        print('(enter "ru" or "en")')
+        lang = input()
+        if lang == 'ru':
+            print("первый игрок, введи свой игровой символ")
+            plov1.icon = input()
+            print("второй игрок, введи свой игровой символ")
+            plov2.icon = input()
+            field.generateField()
+            print('строк: ' + str(len(field.field)) + '; столбцов: ' + str(len(field.field[0])))
+            print('Чтобы сходить, вводите в такой последовательности: номер строки, пробел, номер столбца. Удачи!')
+        else:
+            print("first player: enter your sign")
+            plov1.icon = input()
+            print("second player: enter your sign")
+            plov2.icon = input()
+            field.generateField()
+            print('line: ' + str(len(field.field)) + '; column: ' + str(len(field.field[0])))
+            print('To go, enter in the following sequence: line number, space, column number. Good luck!')
+        print()  # отступ
+        print()  # отступ
+        print(field.field)
+        field.output()
 
+        curPlov.curCord = [0, 0]
         while not(self.WinCondition(field.field, curPlov.icon, 3)):
-            if change == 1:  # смена хода
-                print("first player's move (" + plov1.icon + ")")
+            print()                         # отступ
+            if change == 1:                 # смена хода
+                if lang == 'ru':
+                    print("ход Первого игрока (" + plov1.icon + ")")
+                else:
+                    print("First player's move (" + plov1.icon + ")")
                 change = 2
                 curPlov = plov1
             else:
-                print("second player's move (" + plov2.icon + ")")
+                if lang == 'ru':
+                    print("ход Второго игрока (" + plov2.icon + ")")
+                else:
+                    print("Second player's move (" + plov2.icon + ")")
                 change = 1
                 curPlov = plov2
-            enter = str(input())
+            enter = (input().split(' '))
+            while (field.field[int(enter[0])][int(enter[1])] == plov1.icon) or(field.field[int(enter[0])][int(enter[1])] == plov2.icon):    # проверка на занятость ячейки
+                enter = (input().split(' '))
+                if lang == 'ru':
+                    print("Эта ячейка уже занята! Введите снова")
+                else:
+                    print("This cell is already occupied! Re-enter, please")
             curPlov.curCord.clear()
             curPlov.curCord.append(int(enter[0]) - 1)
-            curPlov.curCord.append(int(enter[2]) - 1)
+            curPlov.curCord.append(int(enter[1]) - 1)
             field.field[curPlov.curCord[0]][curPlov.curCord[1]] = curPlov.icon
             field.output()
             if change == 1:  # запись полученных значений в нужного игрока
@@ -171,10 +208,16 @@ class Game:
                 plov1 = curPlov
 
         enter = str
-        print('enter "end" to exit')
-        while enter != "end":  # нужно, чтобы игра не закрылась сразу(только для консольного режима)
-            enter = input()
+        if lang == 'ru':
+            print('введите "выйти" чтобы выйти')
+        else:
             print('enter "end" to exit')
+        while enter != "end" or enter != "выйти":  # нужно, чтобы игра не закрылась сразу(только для консольного режима)
+            enter = input()
+            if lang == 'ru':
+                print('введите "выйти" чтобы выйти')
+            else:
+                print('enter "end" to exit')
 
 
 gumer = Game()
